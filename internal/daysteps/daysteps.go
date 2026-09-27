@@ -3,13 +3,11 @@ package daysteps
 import (
 	"errors"
 	"fmt"
-	"log"
 	"strconv"
 	"strings"
 	"time"
 
 	"github.com/Yandex-Practicum/tracker/internal/spentcalories"
-	//"github.com/golang/protobuf/ptypes/duration"
 )
 
 const (
@@ -22,14 +20,14 @@ const (
 func parsePackage(data string) (int, time.Duration, error) {
 	dataSl := strings.Split(data, ",")
 	if len(dataSl) != 2 {
-		return 0, 0, errors.New("Длина слайса != 2")
+		return 0, 0, errors.New("slice length != 2")
 	}
 	stepsCount, err := strconv.Atoi(dataSl[0])
 	if err != nil {
 		return 0, 0, err
 	}
 	if stepsCount <= 0 {
-		return 0, 0, errors.New("Количество шагов <= 0")
+		return 0, 0, errors.New("steps count <= 0")
 	}
 	dur, err := time.ParseDuration(dataSl[1])
 	if err != nil {
@@ -44,10 +42,14 @@ func parsePackage(data string) (int, time.Duration, error) {
 func DayActionInfo(data string, weight, height float64) string {
 	stepsCount, duration, err := parsePackage(data)
 	if err != nil {
-		log.Println(err)
+		// Не логируем здесь. Если нужно, логирует вызывающий код.
 		return ""
 	}
+
 	calories, _ := spentcalories.WalkingSpentCalories(stepsCount, weight, height, duration)
 	distance := (float64(stepsCount) * stepLength) / float64(mInKm)
-	return fmt.Sprintf("Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n", stepsCount, distance, calories)
+	return fmt.Sprintf(
+		"Количество шагов: %d.\nДистанция составила %.2f км.\nВы сожгли %.2f ккал.\n",
+		stepsCount, distance, calories,
+	)
 }
